@@ -11,15 +11,34 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 CLOCK = pygame.time.Clock()
 
-TILE_SIZE = 100
+TILE_SIZE = 50
 
 STAGES = {
-    1 : [[0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 2, 2],
-        [9, 0, 2, 2, 0, 0, 1, 1],
-        [2, 2, 1, 1, 1, 0, 0, 1]]
+    1 : [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 2, 2, 2, 0, 1, 2, 2, 2, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 9, 0, 0, 2, 2, 2, 0, 1, 0, 0, 0, 2, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 9, 0, 0, 1],
+        [1, 0, 2, 2, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 0, 0, 1]],
+
+    2 : [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 1],
+        [1, 2, 0, 2, 0, 0, 2, 0, 0, 2, 0, 2, 0, 0, 0, 1],
+        [1, 2, 9, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 0, 2, 1],
+        [1, 2, 2, 2, 0, 2, 2, 2, 0, 2, 0, 2, 0, 0, 0, 1],
+        [1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 1],
+        [1, 2, 9, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 0, 2, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 1],
+        [1, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 1]]
 }
 # Images
 class Game:
@@ -27,6 +46,7 @@ class Game:
     def __init__(self):
         self.solids = pygame.sprite.LayeredUpdates()
         self.backround_objects = pygame.sprite.LayeredUpdates()
+        self.players = pygame.sprite.Group()
 
         self.running = True
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -61,15 +81,16 @@ class Game:
                 elif tile == 2:
                     self.solids.add(Solid_object((x*TILE_SIZE, y*TILE_SIZE), 'grass.png', (255, 255, 255)))
                 elif tile == 9:
-                    self.player = Player_character((x*TILE_SIZE, y*TILE_SIZE))
+                    self.players.add(Player_character((x*TILE_SIZE, y*TILE_SIZE)))
     def draw(self):
         '''draws game objects'''
         self.screen.fill((0,0,255))
         self.backround_objects.draw(self.screen)
         self.solids.draw(self.screen)
+        self.players.draw(self.screen)
     def update(self):
         '''Finds player inputs and game outputs'''
-        self.player.update()
+        self.players.update()
 
         self.count += 1
         if self.count == 60:
@@ -109,7 +130,6 @@ class Player_character(pygame.sprite.Sprite):
         super().__init__()
         self.x = pos[0]
         self.y = pos[1]
-        self._layer = 10
         self.rect = (self.x, self.y)
         self.vel_y = 0
         self.jumped = False
@@ -137,7 +157,7 @@ class Player_character(pygame.sprite.Sprite):
             dx += 5
             self.direction = 2
         if keys[pygame.K_SPACE] and self.jumped == False:
-            self.vel_y = -15
+            self.vel_y = -20
             self.jumped = True
         
         # Handle a+d input & walking textures
@@ -153,14 +173,29 @@ class Player_character(pygame.sprite.Sprite):
         # Gravity
         self.vel_y += 1
         if self.vel_y > 10:
-            dy = 10
+            self.vel_y = 10
+        dy += self.vel_y
 
         # Collider
-        collider = pygame.sprite.spritecollide(self.player, get_world(), False)
-        print(collider)
+        # Move X
+        for sprite in get_world():
+            sprite_rect = pygame.Rect(sprite.rect[0], sprite.rect[1],  TILE_SIZE, TILE_SIZE)
+            
+            if sprite_rect.colliderect(pygame.Rect(self.x+dx, self.y, TILE_SIZE/5*4, TILE_SIZE/5*8)):
+                dx = 0
+        self.x += dx
+        # Move Y
+        for sprite in get_world():
+            sprite_rect = pygame.Rect(sprite.rect[0], sprite.rect[1],  TILE_SIZE, TILE_SIZE)
+            
+            player_rect = pygame.Rect(self.x, self.y+dy, TILE_SIZE/5*4, TILE_SIZE/5*8)
+            if sprite_rect.colliderect(player_rect):
+                if self.vel_y >= 0:
+                    self.jumped = False
+                dy = 0
+                self.vel_y = 0
+        self.y += dy
 
-        self.x -= dx
-        self.y -= dy
         self.rect = (self.x, self.y)
 
     def walk_cycle(self):
@@ -177,6 +212,8 @@ class Player_character(pygame.sprite.Sprite):
 
 def get_world():
     return rungame.solids
+def get_player():
+    return rungame.players
 
 rungame = Game()
 # main game loop
